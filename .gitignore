@@ -1,0 +1,29 @@
+# IDE files
+.idea/
+*.iml
+
+# Build outputs
+build/
+out/
+target/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Application properties (if containing secrets)
+# application-local.properties
