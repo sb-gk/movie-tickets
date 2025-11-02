@@ -24,4 +24,5 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("-XX:+UseSerialGC")
 }
