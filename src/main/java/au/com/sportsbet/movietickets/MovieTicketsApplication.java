@@ -1,8 +1,12 @@
 package au.com.sportsbet.movietickets;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class MovieTicketsApplication {
 
     public static void main(String[] args) {
-        System.out.println("Movie Tickets Application");
+        SpringApplication.run(MovieTicketsApplication.class, args);
     }
 }
