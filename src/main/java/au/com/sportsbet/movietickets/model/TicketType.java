@@ -8,17 +8,13 @@ public enum TicketType {
     TEEN,
     CHILDREN;
 
-    public static TicketType fromAge(int age, AgeConfiguration config) {
-        if (age <= config.getChildrenMax()) {
-            return CHILDREN;
-        } else if (age >= config.getTeenMin() && age <= config.getTeenMax()) {
-            return TEEN;
-        } else if (age >= config.getAdultMin() && age <= config.getAdultMax()) {
-            return ADULT;
-        } else if (age >= config.getSeniorMin()) {
-            return SENIOR;
-        }
-        throw new IllegalArgumentException("Invalid age: " + age);
+    public static TicketType fromAge(int age, AgeConfiguration cfg) {
+        if (age < 0) throw new IllegalArgumentException("Age must be >= 0");
+        if (age <= cfg.getChildrenMax()) return CHILDREN;
+        if (age >= cfg.getTeenMin() && age <= cfg.getTeenMax()) return TEEN;
+        if (age >= cfg.getAdultMin() && age <= cfg.getAdultMax()) return ADULT;
+        if (age >= cfg.getSeniorMin()) return SENIOR;
+        throw new IllegalStateException("Age configuration leaves a gap");
     }
 
 }
