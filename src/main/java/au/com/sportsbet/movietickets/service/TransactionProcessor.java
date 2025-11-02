@@ -11,39 +11,73 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionProcessor {
 
-    private final TicketPriceCalculator priceCalculator;
     private final AgeConfiguration ageConfig;
+    private final TicketPriceCalculator priceCalculator;
 
-    public TransactionProcessor(TicketPriceCalculator priceCalculator, AgeConfiguration ageConfig) {
-        this.priceCalculator = priceCalculator;
+    public TransactionProcessor(AgeConfiguration ageConfig, TicketPriceCalculator priceCalculator) {
         this.ageConfig = ageConfig;
+        this.priceCalculator = priceCalculator;
     }
 
+    /**
+     * Processes a transaction request and returns the calculated ticket summary and total.
+     */
     public TransactionResponse processTransaction(TransactionRequest request) {
-        // Group customers by ticket type
-        Map<TicketType, List<Customer>> customersByType = request.customers().stream()
-            .collect(Collectors.groupingBy(customer -> TicketType.fromAge(customer.age(), ageConfig)));
+        validateRequest(request);
 
-        // Count tickets by type
-        Map<TicketType, Integer> ticketCounts = customersByType.entrySet().stream()
-            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().size()));
+        // 1️⃣ Classify customers by ticket type
+        Map<TicketType, List<Customer>> grouped = groupCustomersByTicketType(request.customers());
 
-        // Calculate ticket summaries
-        List<TicketSummary> ticketSummaries = customersByType.entrySet().stream()
-            .map(entry -> {
-                TicketType ticketType = entry.getKey();
-                int quantity = entry.getValue().size();
-                BigDecimal totalCost = priceCalculator.calculatePriceWithDiscount(ticketType, quantity, ticketCounts);
-                return new TicketSummary(ticketType.name(), quantity, totalCost);
-            })
-            .sorted(Comparator.comparing(TicketSummary::ticketType)) // Sort alphabetically
-            .toList();
+        // 2️⃣ Count tickets per type
+        Map<TicketType, Integer> ticketCounts = countTickets(grouped);
 
-        // Calculate total cost
-        BigDecimal totalCost = ticketSummaries.stream()
-            .map(TicketSummary::totalCost)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 3️⃣ Build per-type summaries
+        List<TicketSummary> summaries = buildSummaries(ticketCounts);
 
-        return new TransactionResponse(request.transactionId(), ticketSummaries, totalCost);
+        // 4️⃣ Calculate overall total
+        BigDecimal totalCost = summaries.stream()
+                .map(TicketSummary::totalCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 5️⃣ Sort summaries alphabetically by ticketType (as per requirements)
+        summaries.sort(Comparator.comparing(TicketSummary::ticketType));
+
+        return new TransactionResponse(request.transactionId(), summaries, totalCost);
+    }
+
+    // ---------------------------- private helpers ----------------------------
+
+    private void validateRequest(TransactionRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Transaction request cannot be null");
+        }
+        if (request.customers() == null) {
+            throw new IllegalArgumentException("Customer list cannot be null");
+        }
+    }
+
+    private Map<TicketType, List<Customer>> groupCustomersByTicketType(List<Customer> customers) {
+        return customers.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(c -> TicketType.fromAge(c.age(), ageConfig)));
+    }
+
+    private Map<TicketType, Integer> countTickets(Map<TicketType, List<Customer>> grouped) {
+        return grouped.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().size()
+                ));
+    }
+
+    private List<TicketSummary> buildSummaries(Map<TicketType, Integer> ticketCounts) {
+        return ticketCounts.entrySet().stream()
+                .map(e -> {
+                    TicketType type = e.getKey();
+                    int quantity = e.getValue();
+                    BigDecimal totalCost = priceCalculator.calculatePriceWithDiscount(type, quantity, ticketCounts);
+                    return new TicketSummary(type.name(), quantity, totalCost);
+                })
+                .collect(Collectors.toList());
     }
 }

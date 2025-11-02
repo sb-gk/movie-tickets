@@ -38,86 +38,181 @@ class TransactionProcessorTest {
         pricingConfig.setChildrenGroupThreshold(3);
 
         TicketPriceCalculator calculator = new TicketPriceCalculator(pricingConfig);
-        processor = new TransactionProcessor(calculator, ageConfig);
+        processor = new TransactionProcessor(ageConfig, calculator);
     }
 
     @Test
-    void testProcessTransaction_SingleAdult() {
+    void basicHappyPath_CustomersSpanningAll4AgeRanges() {
+        // Given: Customers of all 4 age ranges
         TransactionRequest request = new TransactionRequest(1,
-            List.of(new Customer("John Doe", 30))
+            List.of(
+                new Customer("Child", 5),      // CHILDREN
+                new Customer("Teen", 15),      // TEEN
+                new Customer("Adult", 30),     // ADULT
+                new Customer("Senior", 70)     // SENIOR
+            )
         );
 
+        // When
         TransactionResponse response = processor.processTransaction(request);
 
+        // Then
         assertEquals(1, response.transactionId());
-        assertEquals(1, response.tickets().size());
-        assertEquals("ADULT", response.tickets().get(0).ticketType());
-        assertEquals(1, response.tickets().get(0).quantity());
-        assertEquals(new BigDecimal("25.00"), response.tickets().get(0).totalCost());
-        assertEquals(new BigDecimal("25.00"), response.totalCost());
+        assertEquals(4, response.tickets().size());
+        assertEquals(new BigDecimal("59.50"), response.totalCost()); // 5.00 + 12.00 + 25.00 + 17.50
+
+        // Verify ticket summaries are present for all types
+        var ticketTypes = response.tickets().stream()
+            .map(TicketSummary::ticketType)
+            .toList();
+        assertTrue(ticketTypes.contains("CHILDREN"));
+        assertTrue(ticketTypes.contains("TEEN"));
+        assertTrue(ticketTypes.contains("ADULT"));
+        assertTrue(ticketTypes.contains("SENIOR"));
     }
 
     @Test
-    void testProcessTransaction_SingleSenior() {
-        TransactionRequest request = new TransactionRequest(1,
-            List.of(new Customer("Jane Smith", 70))
-        );
-
-        TransactionResponse response = processor.processTransaction(request);
-
-        assertEquals(1, response.transactionId());
-        assertEquals(1, response.tickets().size());
-        assertEquals("SENIOR", response.tickets().get(0).ticketType());
-        assertEquals(1, response.tickets().get(0).quantity());
-        assertEquals(new BigDecimal("17.50"), response.tickets().get(0).totalCost());
-        assertEquals(new BigDecimal("17.50"), response.totalCost());
-    }
-
-    @Test
-    void testProcessTransaction_ChildrenGroupDiscount() {
+    void childrenDiscount_3OrMoreChildrenShouldTriggerDiscount() {
+        // Given: 3 children + 1 adult (should trigger 25% discount on children)
         TransactionRequest request = new TransactionRequest(1,
             List.of(
                 new Customer("Child1", 5),
                 new Customer("Child2", 6),
-                new Customer("Child3", 7)
+                new Customer("Child3", 7),
+                new Customer("Adult", 30)
             )
         );
 
+        // When
         TransactionResponse response = processor.processTransaction(request);
 
-        assertEquals(1, response.transactionId());
-        assertEquals(1, response.tickets().size());
-        assertEquals("CHILDREN", response.tickets().get(0).ticketType());
-        assertEquals(3, response.tickets().get(0).quantity());
-        assertEquals(new BigDecimal("11.25"), response.tickets().get(0).totalCost()); // 3.75 * 3
-        assertEquals(new BigDecimal("11.25"), response.totalCost());
+        // Then
+        assertEquals(2, response.tickets().size());
+        assertEquals(new BigDecimal("36.25"), response.totalCost()); // 11.25 (children) + 25.00 (adult)
+
+        // Verify children got discount (3.75 each instead of 5.00)
+        TicketSummary childrenSummary = response.tickets().stream()
+            .filter(t -> "CHILDREN".equals(t.ticketType()))
+            .findFirst().orElseThrow();
+        assertEquals(3, childrenSummary.quantity());
+        assertEquals(new BigDecimal("11.25"), childrenSummary.totalCost()); // 3 × 3.75
     }
 
     @Test
-    void testProcessTransaction_MixedTypes() {
+    void boundaryAges_10_11_17_18_64_65MapCorrectlyToTypes() {
+        // Given: Boundary age customers
         TransactionRequest request = new TransactionRequest(1,
             List.of(
-                new Customer("Adult", 30),
-                new Customer("Senior", 70),
-                new Customer("Teen", 15),
-                new Customer("Child", 8)
+                new Customer("Boundary10", 10),  // CHILDREN (≤10)
+                new Customer("Boundary11", 11),  // TEEN (≥11, ≤17)
+                new Customer("Boundary17", 17),  // TEEN (≥11, ≤17)
+                new Customer("Boundary18", 18),  // ADULT (≥18, ≤64)
+                new Customer("Boundary64", 64),  // ADULT (≥18, ≤64)
+                new Customer("Boundary65", 65)   // SENIOR (≥65)
             )
         );
 
+        // When
         TransactionResponse response = processor.processTransaction(request);
 
-        assertEquals(1, response.transactionId());
+        // Then
         assertEquals(4, response.tickets().size());
+        assertEquals(new BigDecimal("96.50"), response.totalCost()); // 5.00 + 24.00 + 50.00 + 17.50
 
-        // Check total cost: 25.00 + 17.50 + 12.00 + 5.00 = 59.50
-        assertEquals(new BigDecimal("59.50"), response.totalCost());
+        // Verify correct grouping by boundary ages
+        var ticketMap = response.tickets().stream()
+            .collect(java.util.stream.Collectors.toMap(
+                TicketSummary::ticketType,
+                TicketSummary::quantity
+            ));
 
-        // Check individual tickets are sorted alphabetically
+        assertEquals(1, ticketMap.get("CHILDREN"));
+        assertEquals(2, ticketMap.get("TEEN"));
+        assertEquals(2, ticketMap.get("ADULT"));
+        assertEquals(1, ticketMap.get("SENIOR"));
+    }
+
+    @Test
+    void emptyNullCustomers_ThrowsIllegalArgumentException() {
+        // Test null request
+        IllegalArgumentException nullRequestException = assertThrows(
+            IllegalArgumentException.class,
+            () -> processor.processTransaction(null)
+        );
+        assertEquals("Transaction request cannot be null", nullRequestException.getMessage());
+
+        // Test null customers list
+        TransactionRequest requestWithNullCustomers = new TransactionRequest(1, null);
+        IllegalArgumentException nullCustomersException = assertThrows(
+            IllegalArgumentException.class,
+            () -> processor.processTransaction(requestWithNullCustomers)
+        );
+        assertEquals("Customer list cannot be null", nullCustomersException.getMessage());
+    }
+
+    @Test
+    void alphabeticalOrderCheck_TicketSummariesReturnedSortedCorrectly() {
+        // Given: Customers that will create all ticket types
+        TransactionRequest request = new TransactionRequest(1,
+            List.of(
+                new Customer("Senior", 70),    // SENIOR
+                new Customer("Child", 5),      // CHILDREN
+                new Customer("Teen", 15),      // TEEN
+                new Customer("Adult", 30)      // ADULT
+            )
+        );
+
+        // When
+        TransactionResponse response = processor.processTransaction(request);
+
+        // Then: Verify alphabetical order (ADULT, CHILDREN, SENIOR, TEEN)
         List<TicketSummary> tickets = response.tickets();
         assertEquals("ADULT", tickets.get(0).ticketType());
         assertEquals("CHILDREN", tickets.get(1).ticketType());
         assertEquals("SENIOR", tickets.get(2).ticketType());
         assertEquals("TEEN", tickets.get(3).ticketType());
+    }
+
+    @Test
+    void shouldHandleSingleCustomerPerType() {
+        // Given: One customer of each type
+        TransactionRequest request = new TransactionRequest(1,
+            List.of(
+                new Customer("Child", 8),
+                new Customer("Teen", 14),
+                new Customer("Adult", 25),
+                new Customer("Senior", 75)
+            )
+        );
+
+        // When
+        TransactionResponse response = processor.processTransaction(request);
+
+        // Then
+        assertEquals(4, response.tickets().size());
+        assertEquals(new BigDecimal("59.50"), response.totalCost()); // 5.00 + 12.00 + 25.00 + 17.50
+    }
+
+    @Test
+    void shouldHandleMultipleCustomersSameType() {
+        // Given: Multiple customers of same type
+        TransactionRequest request = new TransactionRequest(1,
+            List.of(
+                new Customer("Adult1", 25),
+                new Customer("Adult2", 35),
+                new Customer("Adult3", 45)
+            )
+        );
+
+        // When
+        TransactionResponse response = processor.processTransaction(request);
+
+        // Then
+        assertEquals(1, response.tickets().size());
+        assertEquals("ADULT", response.tickets().get(0).ticketType());
+        assertEquals(3, response.tickets().get(0).quantity());
+        assertEquals(new BigDecimal("75.00"), response.tickets().get(0).totalCost()); // 3 × 25.00
+        assertEquals(new BigDecimal("75.00"), response.totalCost());
     }
 
     @Test
@@ -145,9 +240,9 @@ class TransactionProcessorTest {
             .findFirst().orElseThrow();
 
         assertEquals(2, childrenTicket.quantity());
-        assertEquals(new BigDecimal("10.00"), childrenTicket.totalCost()); // 5.00 * 2
+        assertEquals(new BigDecimal("10.00"), childrenTicket.totalCost()); // 2 × 5.00 (no discount for 2)
         assertEquals(1, seniorTicket.quantity());
-        assertEquals(new BigDecimal("17.50"), seniorTicket.totalCost());
-        assertEquals(new BigDecimal("27.50"), response.totalCost());
+        assertEquals(new BigDecimal("17.50"), seniorTicket.totalCost()); // 1 × 17.50
+        assertEquals(new BigDecimal("27.50"), response.totalCost()); // 10.00 + 17.50
     }
 }
