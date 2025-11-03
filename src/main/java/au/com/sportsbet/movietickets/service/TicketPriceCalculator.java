@@ -5,10 +5,14 @@ import au.com.sportsbet.movietickets.model.TicketType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TicketPriceCalculator {
+
+  private static final Logger log = LoggerFactory.getLogger(TicketPriceCalculator.class);
 
   public static final int SCALE = 2;
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
@@ -25,10 +29,15 @@ public class TicketPriceCalculator {
 
     // Apply group discount for children if threshold is met
     if (ticketType == TicketType.CHILDREN && qualifiesForChildrenDiscount(ticketCounts)) {
+      log.debug("Applying children group discount for {} tickets", quantity);
       basePrice = applyDiscount(basePrice, pricingConfig.getChildrenGroupDiscountRate());
     }
 
-    return scaleBd(basePrice.multiply(BigDecimal.valueOf(quantity)));
+    BigDecimal totalCost = scaleBd(basePrice.multiply(BigDecimal.valueOf(quantity)));
+    log.debug("Calculated price for {} {} tickets: ${} (base: ${})",
+        quantity, ticketType, totalCost, basePrice);
+
+    return totalCost;
   }
 
   private BigDecimal calculateBasePrice(TicketType ticketType) {

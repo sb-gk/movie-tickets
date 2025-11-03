@@ -5,11 +5,14 @@ import au.com.sportsbet.movietickets.model.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TransactionProcessor {
 
+  private static final Logger log = LoggerFactory.getLogger(TransactionProcessor.class);
   private final AgeConfiguration ageConfig;
   private final TicketPriceCalculator priceCalculator;
 
@@ -21,17 +24,23 @@ public class TransactionProcessor {
   public TransactionResponse processTransaction(TransactionRequest request) {
     validateRequest(request);
 
+    log.info("Processing transaction ID: {} with {} customers", request.transactionId(), request.customers().size());
+
     Map<TicketType, List<Customer>> grouped = groupCustomersByTicketType(request.customers());
+    log.debug("Grouped customers by ticket type: {}", grouped.keySet());
 
     Map<TicketType, Integer> ticketCounts = countTickets(grouped);
+    log.debug("Ticket counts: {}", ticketCounts);
 
     List<TicketSummary> summaries = buildSummaries(ticketCounts);
 
     BigDecimal totalCost =
         summaries.stream().map(TicketSummary::totalCost).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    // 5️⃣ Sort summaries alphabetically by ticketType (as per requirements)
     summaries.sort(Comparator.comparing(TicketSummary::ticketType));
+
+    log.info("Transaction ID: {} processed successfully - Total cost: ${}, {} ticket types",
+        request.transactionId(), totalCost, summaries.size());
 
     return new TransactionResponse(request.transactionId(), summaries, totalCost);
   }
