@@ -134,22 +134,6 @@ class TransactionProcessorTest {
   }
 
   @Test
-  void emptyNullCustomers_ThrowsIllegalArgumentException() {
-    // Test null request
-    IllegalArgumentException nullRequestException =
-        assertThrows(IllegalArgumentException.class, () -> processor.processTransaction(null));
-    assertEquals("Transaction request cannot be null", nullRequestException.getMessage());
-
-    // Test null customers list
-    TransactionRequest requestWithNullCustomers = new TransactionRequest(1, null);
-    IllegalArgumentException nullCustomersException =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> processor.processTransaction(requestWithNullCustomers));
-    assertEquals("Customer list cannot be null", nullCustomersException.getMessage());
-  }
-
-  @Test
   void alphabeticalOrderCheck_TicketSummariesReturnedSortedCorrectly() {
     // Given: Customers that will create all ticket types
     TransactionRequest request =

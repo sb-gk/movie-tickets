@@ -28,8 +28,6 @@ public class TransactionProcessor {
    * @return TransactionResponse containing ticket summaries and total cost
    */
   public TransactionResponse processTransaction(TransactionRequest request) {
-    validateRequest(request);
-
     log.info(
         "Processing transaction ID: {} with {} customers",
         request.transactionId(),
@@ -55,15 +53,6 @@ public class TransactionProcessor {
         summaries.size());
 
     return new TransactionResponse(request.transactionId(), summaries, totalCost);
-  }
-
-  private void validateRequest(TransactionRequest request) {
-    if (request == null) {
-      throw new IllegalArgumentException("Transaction request cannot be null");
-    }
-    if (request.customers() == null) {
-      throw new IllegalArgumentException("Customer list cannot be null");
-    }
   }
 
   private Map<TicketType, List<Customer>> groupCustomersByTicketType(List<Customer> customers) {
