@@ -10,14 +10,14 @@ class TicketTypeTest {
   private final AgeConfiguration config = createDefaultConfig();
 
   private AgeConfiguration createDefaultConfig() {
-    AgeConfiguration config = new AgeConfiguration();
-    config.setChildrenMax(10);
-    config.setTeenMin(11);
-    config.setTeenMax(17);
-    config.setAdultMin(18);
-    config.setAdultMax(64);
-    config.setSeniorMin(65);
-    return config;
+    return new AgeConfiguration(
+        10, // childrenMax
+        11, // teenMin
+        17, // teenMax
+        18, // adultMin
+        64, // adultMax
+        65 // seniorMin
+        );
   }
 
   @Test

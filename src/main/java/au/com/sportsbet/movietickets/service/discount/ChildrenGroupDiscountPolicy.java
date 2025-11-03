@@ -22,8 +22,8 @@ public class ChildrenGroupDiscountPolicy implements DiscountPolicy {
 
     int childCount = context.countOf(TicketType.CHILDREN);
     var cfg = context.pricingConfiguration();
-    if (childCount >= cfg.getChildrenGroupThreshold()) {
-      BigDecimal discount = baseUnitPrice.multiply(cfg.getChildrenGroupDiscountRate());
+    if (childCount >= cfg.childrenGroupThreshold()) {
+      BigDecimal discount = baseUnitPrice.multiply(cfg.childrenGroupDiscountRate());
       return baseUnitPrice.subtract(discount);
     }
     return baseUnitPrice;

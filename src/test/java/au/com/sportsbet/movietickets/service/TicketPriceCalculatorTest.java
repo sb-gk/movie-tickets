@@ -18,13 +18,14 @@ class TicketPriceCalculatorTest {
 
   @BeforeEach
   void setUp() {
-    config = new PricingConfiguration();
-    config.setAdultPrice(new BigDecimal("25.00"));
-    config.setTeenPrice(new BigDecimal("12.00"));
-    config.setChildrenPrice(new BigDecimal("5.00"));
-    config.setSeniorDiscountRate(new BigDecimal("0.30"));
-    config.setChildrenGroupDiscountRate(new BigDecimal("0.25"));
-    config.setChildrenGroupThreshold(3);
+    config =
+        new PricingConfiguration(
+            new BigDecimal("25.00"),
+            new BigDecimal("12.00"),
+            new BigDecimal("5.00"),
+            new BigDecimal("0.30"),
+            new BigDecimal("0.25"),
+            3);
 
     calculator = new TicketPriceCalculator(config, List.of(new ChildrenGroupDiscountPolicy()));
   }

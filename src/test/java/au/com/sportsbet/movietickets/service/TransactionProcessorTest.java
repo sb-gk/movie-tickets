@@ -19,23 +19,27 @@ class TransactionProcessorTest {
 
   @BeforeEach
   void setUp() {
-    // Setup age configuration
-    ageConfig = new AgeConfiguration();
-    ageConfig.setChildrenMax(10);
-    ageConfig.setTeenMin(11);
-    ageConfig.setTeenMax(17);
-    ageConfig.setAdultMin(18);
-    ageConfig.setAdultMax(64);
-    ageConfig.setSeniorMin(65);
+    // Setup age configuration (constructor-bound record)
+    ageConfig =
+        new AgeConfiguration(
+            10, // childrenMax
+            11, // teenMin
+            17, // teenMax
+            18, // adultMin
+            64, // adultMax
+            65 // seniorMin
+            );
 
-    // Setup pricing configuration
-    pricingConfig = new PricingConfiguration();
-    pricingConfig.setAdultPrice(BigDecimal.valueOf(25.00));
-    pricingConfig.setTeenPrice(BigDecimal.valueOf(12.00));
-    pricingConfig.setChildrenPrice(BigDecimal.valueOf(5.00));
-    pricingConfig.setSeniorDiscountRate(BigDecimal.valueOf(0.30));
-    pricingConfig.setChildrenGroupDiscountRate(BigDecimal.valueOf(0.25));
-    pricingConfig.setChildrenGroupThreshold(3);
+    // Setup pricing configuration (constructor-bound record)
+    pricingConfig =
+        new PricingConfiguration(
+            BigDecimal.valueOf(25.00), // adultPrice
+            BigDecimal.valueOf(12.00), // teenPrice
+            BigDecimal.valueOf(5.00), // childrenPrice
+            BigDecimal.valueOf(0.30), // seniorDiscountRate
+            BigDecimal.valueOf(0.25), // childrenGroupDiscountRate
+            3 // childrenGroupThreshold
+            );
 
     TicketPriceCalculator calculator =
         new TicketPriceCalculator(pricingConfig, List.of(new ChildrenGroupDiscountPolicy()));

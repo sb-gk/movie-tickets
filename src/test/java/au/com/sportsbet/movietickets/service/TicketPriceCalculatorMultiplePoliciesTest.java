@@ -21,13 +21,14 @@ class TicketPriceCalculatorMultiplePoliciesTest {
   @Test
   void multiplePoliciesAreComposed_Matinee10PercentPlusChildrenGroup25Percent() {
     // Pricing: Adult 25, Teen 12, Children 5; Children group discount 25% for >=3
-    PricingConfiguration cfg = new PricingConfiguration();
-    cfg.setAdultPrice(new BigDecimal("25.00"));
-    cfg.setTeenPrice(new BigDecimal("12.00"));
-    cfg.setChildrenPrice(new BigDecimal("5.00"));
-    cfg.setSeniorDiscountRate(new BigDecimal("0.30"));
-    cfg.setChildrenGroupDiscountRate(new BigDecimal("0.25"));
-    cfg.setChildrenGroupThreshold(3);
+    PricingConfiguration cfg =
+        new PricingConfiguration(
+            new BigDecimal("25.00"),
+            new BigDecimal("12.00"),
+            new BigDecimal("5.00"),
+            new BigDecimal("0.30"),
+            new BigDecimal("0.25"),
+            3);
 
     // Compose two policies: existing Children group policy AND a hypothetical "Matinee 10% off"
     List<DiscountPolicy> policies =

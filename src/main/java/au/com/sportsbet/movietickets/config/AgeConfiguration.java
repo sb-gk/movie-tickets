@@ -6,28 +6,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * Immutable, constructor-bound age configuration. Spring Boot binds properties into this record via
+ * the canonical constructor.
+ */
 @Component
 @ConfigurationProperties(prefix = "ticket.age")
 @Validated
-public class AgeConfiguration {
-
-  @Min(0)
-  private int childrenMax;
-
-  @Min(0)
-  private int teenMin;
-
-  @Min(0)
-  private int teenMax;
-
-  @Min(0)
-  private int adultMin;
-
-  @Min(0)
-  private int adultMax;
-
-  @Min(0)
-  private int seniorMin;
+public record AgeConfiguration(
+    @Min(0) int childrenMax,
+    @Min(0) int teenMin,
+    @Min(0) int teenMax,
+    @Min(0) int adultMin,
+    @Min(0) int adultMax,
+    @Min(0) int seniorMin) {
 
   @AssertTrue(
       message =
@@ -38,54 +30,5 @@ public class AgeConfiguration {
         && teenMax < adultMin
         && adultMin <= adultMax
         && adultMax < seniorMin;
-  }
-
-  // Getters and setters
-  public int getChildrenMax() {
-    return childrenMax;
-  }
-
-  public void setChildrenMax(int childrenMax) {
-    this.childrenMax = childrenMax;
-  }
-
-  public int getTeenMin() {
-    return teenMin;
-  }
-
-  public void setTeenMin(int teenMin) {
-    this.teenMin = teenMin;
-  }
-
-  public int getTeenMax() {
-    return teenMax;
-  }
-
-  public void setTeenMax(int teenMax) {
-    this.teenMax = teenMax;
-  }
-
-  public int getAdultMin() {
-    return adultMin;
-  }
-
-  public void setAdultMin(int adultMin) {
-    this.adultMin = adultMin;
-  }
-
-  public int getAdultMax() {
-    return adultMax;
-  }
-
-  public void setAdultMax(int adultMax) {
-    this.adultMax = adultMax;
-  }
-
-  public int getSeniorMin() {
-    return seniorMin;
-  }
-
-  public void setSeniorMin(int seniorMin) {
-    this.seniorMin = seniorMin;
   }
 }

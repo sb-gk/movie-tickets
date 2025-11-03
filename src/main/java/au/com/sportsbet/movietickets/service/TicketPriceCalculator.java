@@ -71,15 +71,15 @@ public class TicketPriceCalculator {
 
   private BigDecimal calculateBasePrice(TicketType ticketType) {
     return switch (ticketType) {
-      case ADULT -> pricingConfig.getAdultPrice();
+      case ADULT -> pricingConfig.adultPrice();
       case SENIOR -> {
         // Senior gets discount off adult price
-        BigDecimal adultPrice = pricingConfig.getAdultPrice();
-        BigDecimal discount = adultPrice.multiply(pricingConfig.getSeniorDiscountRate());
+        BigDecimal adultPrice = pricingConfig.adultPrice();
+        BigDecimal discount = adultPrice.multiply(pricingConfig.seniorDiscountRate());
         yield scaleBd(adultPrice.subtract(discount));
       }
-      case TEEN -> pricingConfig.getTeenPrice();
-      case CHILDREN -> pricingConfig.getChildrenPrice();
+      case TEEN -> pricingConfig.teenPrice();
+      case CHILDREN -> pricingConfig.childrenPrice();
     };
   }
 
