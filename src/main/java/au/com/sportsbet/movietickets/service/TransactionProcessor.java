@@ -18,20 +18,15 @@ public class TransactionProcessor {
     this.priceCalculator = priceCalculator;
   }
 
-  /** Processes a transaction request and returns the calculated ticket summary and total. */
   public TransactionResponse processTransaction(TransactionRequest request) {
     validateRequest(request);
 
-    // 1️⃣ Classify customers by ticket type
     Map<TicketType, List<Customer>> grouped = groupCustomersByTicketType(request.customers());
 
-    // 2️⃣ Count tickets per type
     Map<TicketType, Integer> ticketCounts = countTickets(grouped);
 
-    // 3️⃣ Build per-type summaries
     List<TicketSummary> summaries = buildSummaries(ticketCounts);
 
-    // 4️⃣ Calculate overall total
     BigDecimal totalCost =
         summaries.stream().map(TicketSummary::totalCost).reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -40,8 +35,6 @@ public class TransactionProcessor {
 
     return new TransactionResponse(request.transactionId(), summaries, totalCost);
   }
-
-  // ---------------------------- private helpers ----------------------------
 
   private void validateRequest(TransactionRequest request) {
     if (request == null) {

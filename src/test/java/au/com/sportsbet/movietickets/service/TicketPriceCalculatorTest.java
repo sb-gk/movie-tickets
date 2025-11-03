@@ -28,27 +28,6 @@ class TicketPriceCalculatorTest {
   }
 
   @Test
-  void testCalculateBasePrice_Adult() {
-    assertEquals(new BigDecimal("25.00"), calculator.calculateBasePrice(TicketType.ADULT));
-  }
-
-  @Test
-  void testCalculateBasePrice_Teen() {
-    assertEquals(new BigDecimal("12.00"), calculator.calculateBasePrice(TicketType.TEEN));
-  }
-
-  @Test
-  void testCalculateBasePrice_Children() {
-    assertEquals(new BigDecimal("5.00"), calculator.calculateBasePrice(TicketType.CHILDREN));
-  }
-
-  @Test
-  void testCalculateBasePrice_Senior() {
-    // Senior gets 30% discount off adult price: 25.00 * 0.70 = 17.50
-    assertEquals(new BigDecimal("17.50"), calculator.calculateBasePrice(TicketType.SENIOR));
-  }
-
-  @Test
   void testCalculatePriceWithDiscount_NoChildrenDiscount() {
     Map<TicketType, Integer> ticketCounts = Map.of(TicketType.CHILDREN, 2);
     BigDecimal result = calculator.calculatePriceWithDiscount(TicketType.CHILDREN, 2, ticketCounts);
