@@ -18,9 +18,9 @@ class TicketPriceCalculatorTest {
     @BeforeEach
     void setUp() {
         config = new PricingConfiguration();
-        config.setAdult(new BigDecimal("25.00"));
-        config.setTeen(new BigDecimal("12.00"));
-        config.setChildren(new BigDecimal("5.00"));
+        config.setAdultPrice(new BigDecimal("25.00"));
+        config.setTeenPrice(new BigDecimal("12.00"));
+        config.setChildrenPrice(new BigDecimal("5.00"));
         config.setSeniorDiscountRate(new BigDecimal("0.30"));
         config.setChildrenGroupDiscountRate(new BigDecimal("0.25"));
         config.setChildrenGroupThreshold(3);

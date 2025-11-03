@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -73,14 +72,15 @@ class TicketControllerTest {
 
     @Test
     void testCalculateTicketCost_InvalidRequest() throws Exception {
-        // Given - empty request
+        // Given - empty request (will fail validation)
         String invalidRequest = "{}";
 
-        // When & Then - Spring Boot handles validation, so it might return 200 with null values
-        // or the service might handle it. For now, let's just test that it doesn't crash
+        // When & Then - Validation should return 400 Bad Request
         mockMvc.perform(post("/api/tickets/calculate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidRequest))
-                .andExpect(status().isOk()); // Service handles null gracefully
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation Failed"));
     }
 }

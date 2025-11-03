@@ -30,9 +30,9 @@ class TransactionProcessorTest {
 
         // Setup pricing configuration
         pricingConfig = new PricingConfiguration();
-        pricingConfig.setAdult(BigDecimal.valueOf(25.00));
-        pricingConfig.setTeen(BigDecimal.valueOf(12.00));
-        pricingConfig.setChildren(BigDecimal.valueOf(5.00));
+        pricingConfig.setAdultPrice(BigDecimal.valueOf(25.00));
+        pricingConfig.setTeenPrice(BigDecimal.valueOf(12.00));
+        pricingConfig.setChildrenPrice(BigDecimal.valueOf(5.00));
         pricingConfig.setSeniorDiscountRate(BigDecimal.valueOf(0.30));
         pricingConfig.setChildrenGroupDiscountRate(BigDecimal.valueOf(0.25));
         pricingConfig.setChildrenGroupThreshold(3);

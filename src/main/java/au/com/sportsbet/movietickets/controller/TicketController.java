@@ -3,6 +3,7 @@ package au.com.sportsbet.movietickets.controller;
 import au.com.sportsbet.movietickets.model.TransactionRequest;
 import au.com.sportsbet.movietickets.model.TransactionResponse;
 import au.com.sportsbet.movietickets.service.TransactionProcessor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,8 @@ public class TicketController {
     }
 
     @PostMapping("/calculate")
-    public ResponseEntity<TransactionResponse> calculateTicketCost(@RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionResponse> calculateTicketCost(
+            @Valid @RequestBody TransactionRequest request) {
         TransactionResponse response = transactionProcessor.processTransaction(request);
         return ResponseEntity.ok(response);
     }

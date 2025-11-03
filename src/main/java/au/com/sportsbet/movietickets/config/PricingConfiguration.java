@@ -9,22 +9,22 @@ import java.math.BigDecimal;
 @ConfigurationProperties(prefix = "ticket.price")
 public class PricingConfiguration {
 
-    private BigDecimal adult;
-    private BigDecimal teen;
-    private BigDecimal children;
+    private BigDecimal adultPrice;
+    private BigDecimal teenPrice;
+    private BigDecimal childrenPrice;
     private BigDecimal seniorDiscountRate;
     private BigDecimal childrenGroupDiscountRate;
     private int childrenGroupThreshold;
 
     // Getters and setters
-    public BigDecimal getAdult() { return adult; }
-    public void setAdult(BigDecimal adult) { this.adult = adult; }
+    public BigDecimal getAdultPrice() { return adultPrice; }
+    public void setAdultPrice(BigDecimal adultPrice) { this.adultPrice = adultPrice; }
 
-    public BigDecimal getTeen() { return teen; }
-    public void setTeen(BigDecimal teen) { this.teen = teen; }
+    public BigDecimal getTeenPrice() { return teenPrice; }
+    public void setTeenPrice(BigDecimal teenPrice) { this.teenPrice = teenPrice; }
 
-    public BigDecimal getChildren() { return children; }
-    public void setChildren(BigDecimal children) { this.children = children; }
+    public BigDecimal getChildrenPrice() { return childrenPrice; }
+    public void setChildrenPrice(BigDecimal childrenPrice) { this.childrenPrice = childrenPrice; }
 
     public BigDecimal getSeniorDiscountRate() { return seniorDiscountRate; }
     public void setSeniorDiscountRate(BigDecimal seniorDiscountRate) { this.seniorDiscountRate = seniorDiscountRate; }
