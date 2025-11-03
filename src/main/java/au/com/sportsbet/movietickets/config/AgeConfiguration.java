@@ -7,29 +7,59 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "ticket.age")
 public class AgeConfiguration {
 
-    private int childrenMax;
-    private int teenMin;
-    private int teenMax;
-    private int adultMin;
-    private int adultMax;
-    private int seniorMin;
+  private int childrenMax;
+  private int teenMin;
+  private int teenMax;
+  private int adultMin;
+  private int adultMax;
+  private int seniorMin;
 
-    // Getters and setters
-    public int getChildrenMax() { return childrenMax; }
-    public void setChildrenMax(int childrenMax) { this.childrenMax = childrenMax; }
+  // Getters and setters
+  public int getChildrenMax() {
+    return childrenMax;
+  }
 
-    public int getTeenMin() { return teenMin; }
-    public void setTeenMin(int teenMin) { this.teenMin = teenMin; }
+  public void setChildrenMax(int childrenMax) {
+    this.childrenMax = childrenMax;
+  }
 
-    public int getTeenMax() { return teenMax; }
-    public void setTeenMax(int teenMax) { this.teenMax = teenMax; }
+  public int getTeenMin() {
+    return teenMin;
+  }
 
-    public int getAdultMin() { return adultMin; }
-    public void setAdultMin(int adultMin) { this.adultMin = adultMin; }
+  public void setTeenMin(int teenMin) {
+    this.teenMin = teenMin;
+  }
 
-    public int getAdultMax() { return adultMax; }
-    public void setAdultMax(int adultMax) { this.adultMax = adultMax; }
+  public int getTeenMax() {
+    return teenMax;
+  }
 
-    public int getSeniorMin() { return seniorMin; }
-    public void setSeniorMin(int seniorMin) { this.seniorMin = seniorMin; }
+  public void setTeenMax(int teenMax) {
+    this.teenMax = teenMax;
+  }
+
+  public int getAdultMin() {
+    return adultMin;
+  }
+
+  public void setAdultMin(int adultMin) {
+    this.adultMin = adultMin;
+  }
+
+  public int getAdultMax() {
+    return adultMax;
+  }
+
+  public void setAdultMax(int adultMax) {
+    this.adultMax = adultMax;
+  }
+
+  public int getSeniorMin() {
+    return seniorMin;
+  }
+
+  public void setSeniorMin(int seniorMin) {
+    this.seniorMin = seniorMin;
+  }
 }
