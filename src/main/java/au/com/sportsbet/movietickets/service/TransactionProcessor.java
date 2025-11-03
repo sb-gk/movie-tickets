@@ -57,7 +57,6 @@ public class TransactionProcessor {
 
   private Map<TicketType, List<Customer>> groupCustomersByTicketType(List<Customer> customers) {
     return customers.stream()
-        .filter(Objects::nonNull)
         .collect(Collectors.groupingBy(c -> TicketType.fromAge(c.age(), ageConfig)));
   }
 
