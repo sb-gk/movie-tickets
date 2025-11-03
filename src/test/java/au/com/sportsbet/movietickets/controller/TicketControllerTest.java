@@ -46,7 +46,7 @@ class TicketControllerTest {
     TransactionResponse expectedResponse =
         new TransactionResponse(
             1,
-            List.of(new TicketSummary("ADULT", 1, new BigDecimal("25.00"))),
+            List.of(new TicketSummary("Adult", 1, new BigDecimal("25.00"))),
             new BigDecimal("25.00"));
 
     when(transactionProcessor.processTransaction(any(TransactionRequest.class)))
@@ -61,7 +61,7 @@ class TicketControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.transactionId").value(1))
-        .andExpect(jsonPath("$.tickets[0].ticketType").value("ADULT"))
+        .andExpect(jsonPath("$.tickets[0].ticketType").value("Adult"))
         .andExpect(jsonPath("$.tickets[0].quantity").value(1))
         .andExpect(jsonPath("$.tickets[0].totalCost").value(25.00))
         .andExpect(jsonPath("$.totalCost").value(25.00));

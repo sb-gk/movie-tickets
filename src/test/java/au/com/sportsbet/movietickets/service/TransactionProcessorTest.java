@@ -63,10 +63,10 @@ class TransactionProcessorTest {
 
     // Verify ticket summaries are present for all types
     var ticketTypes = response.tickets().stream().map(TicketSummary::ticketType).toList();
-    assertTrue(ticketTypes.contains("CHILDREN"));
-    assertTrue(ticketTypes.contains("TEEN"));
-    assertTrue(ticketTypes.contains("ADULT"));
-    assertTrue(ticketTypes.contains("SENIOR"));
+    assertTrue(ticketTypes.contains("Children"));
+    assertTrue(ticketTypes.contains("Teen"));
+    assertTrue(ticketTypes.contains("Adult"));
+    assertTrue(ticketTypes.contains("Senior"));
   }
 
   @Test
@@ -91,7 +91,7 @@ class TransactionProcessorTest {
     // Verify children got discount (3.75 each instead of 5.00)
     TicketSummary childrenSummary =
         response.tickets().stream()
-            .filter(t -> "CHILDREN".equals(t.ticketType()))
+            .filter(t -> "Children".equals(t.ticketType()))
             .findFirst()
             .orElseThrow();
     assertEquals(3, childrenSummary.quantity());
@@ -127,10 +127,10 @@ class TransactionProcessorTest {
                 java.util.stream.Collectors.toMap(
                     TicketSummary::ticketType, TicketSummary::quantity));
 
-    assertEquals(1, ticketMap.get("CHILDREN"));
-    assertEquals(2, ticketMap.get("TEEN"));
-    assertEquals(2, ticketMap.get("ADULT"));
-    assertEquals(1, ticketMap.get("SENIOR"));
+    assertEquals(1, ticketMap.get("Children"));
+    assertEquals(2, ticketMap.get("Teen"));
+    assertEquals(2, ticketMap.get("Adult"));
+    assertEquals(1, ticketMap.get("Senior"));
   }
 
   @Test
@@ -165,12 +165,12 @@ class TransactionProcessorTest {
     // When
     TransactionResponse response = processor.processTransaction(request);
 
-    // Then: Verify alphabetical order (ADULT, CHILDREN, SENIOR, TEEN)
+    // Then: Verify alphabetical order (Adult, Children, Senior, Teen)
     List<TicketSummary> tickets = response.tickets();
-    assertEquals("ADULT", tickets.get(0).ticketType());
-    assertEquals("CHILDREN", tickets.get(1).ticketType());
-    assertEquals("SENIOR", tickets.get(2).ticketType());
-    assertEquals("TEEN", tickets.get(3).ticketType());
+    assertEquals("Adult", tickets.get(0).ticketType());
+    assertEquals("Children", tickets.get(1).ticketType());
+    assertEquals("Senior", tickets.get(2).ticketType());
+    assertEquals("Teen", tickets.get(3).ticketType());
   }
 
   @Test
@@ -209,7 +209,7 @@ class TransactionProcessorTest {
 
     // Then
     assertEquals(1, response.tickets().size());
-    assertEquals("ADULT", response.tickets().get(0).ticketType());
+    assertEquals("Adult", response.tickets().get(0).ticketType());
     assertEquals(3, response.tickets().get(0).quantity());
     assertEquals(new BigDecimal("75.00"), response.tickets().get(0).totalCost()); // 3 × 25.00
     assertEquals(new BigDecimal("75.00"), response.totalCost());
@@ -235,12 +235,12 @@ class TransactionProcessorTest {
     // Find Children and Senior tickets
     TicketSummary childrenTicket =
         response.tickets().stream()
-            .filter(t -> "CHILDREN".equals(t.ticketType()))
+            .filter(t -> "Children".equals(t.ticketType()))
             .findFirst()
             .orElseThrow();
     TicketSummary seniorTicket =
         response.tickets().stream()
-            .filter(t -> "SENIOR".equals(t.ticketType()))
+            .filter(t -> "Senior".equals(t.ticketType()))
             .findFirst()
             .orElseThrow();
 

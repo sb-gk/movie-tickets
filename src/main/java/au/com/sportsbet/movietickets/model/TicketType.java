@@ -16,4 +16,13 @@ public enum TicketType {
     if (age >= cfg.getSeniorMin()) return SENIOR;
     throw new IllegalStateException("Age configuration leaves a gap");
   }
+
+  public String getDisplayName() {
+    return switch (this) {
+      case ADULT -> "Adult";
+      case SENIOR -> "Senior";
+      case TEEN -> "Teen";
+      case CHILDREN -> "Children";
+    };
+  }
 }

@@ -73,7 +73,7 @@ public class TransactionProcessor {
               int quantity = e.getValue();
               BigDecimal totalCost =
                   priceCalculator.calculatePriceWithDiscount(type, quantity, ticketCounts);
-              return new TicketSummary(type.name(), quantity, totalCost);
+              return new TicketSummary(type.getDisplayName(), quantity, totalCost);
             })
         .collect(Collectors.toList());
   }
