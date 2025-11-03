@@ -5,7 +5,6 @@ import au.com.sportsbet.movietickets.model.TicketType;
 import au.com.sportsbet.movietickets.service.discount.DiscountPolicy;
 import au.com.sportsbet.movietickets.service.discount.PricingContext;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,9 +18,6 @@ import org.springframework.stereotype.Service;
 public class TicketPriceCalculator {
 
   private static final Logger log = LoggerFactory.getLogger(TicketPriceCalculator.class);
-
-  public static final int SCALE = 2;
-  public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
   private final PricingConfiguration pricingConfig;
   private final List<DiscountPolicy> discountPolicies;
@@ -84,6 +80,6 @@ public class TicketPriceCalculator {
   }
 
   private BigDecimal scaleBd(BigDecimal value) {
-    return value.setScale(SCALE, ROUNDING_MODE);
+    return MoneyUtils.scale(value);
   }
 }
