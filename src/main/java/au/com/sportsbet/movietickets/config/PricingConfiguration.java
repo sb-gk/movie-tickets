@@ -17,20 +17,25 @@ public class PricingConfiguration {
   @NotNull
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal adultPrice;
+
   @NotNull
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal teenPrice;
+
   @NotNull
   @DecimalMin(value = "0.0", inclusive = false)
   private BigDecimal childrenPrice;
+
   @NotNull
   @DecimalMin(value = "0.0")
   @DecimalMax(value = "1.0", inclusive = false)
   private BigDecimal seniorDiscountRate;
+
   @NotNull
   @DecimalMin(value = "0.0")
   @DecimalMax(value = "1.0", inclusive = false)
   private BigDecimal childrenGroupDiscountRate;
+
   @Min(0)
   private int childrenGroupThreshold;
 

@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import au.com.sportsbet.movietickets.config.PricingConfiguration;
 import au.com.sportsbet.movietickets.model.TicketType;
+import au.com.sportsbet.movietickets.service.discount.ChildrenGroupDiscountPolicy;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,7 @@ class TicketPriceCalculatorTest {
     config.setChildrenGroupDiscountRate(new BigDecimal("0.25"));
     config.setChildrenGroupThreshold(3);
 
-    calculator = new TicketPriceCalculator(config);
+    calculator = new TicketPriceCalculator(config, List.of(new ChildrenGroupDiscountPolicy()));
   }
 
   @Test

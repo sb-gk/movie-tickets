@@ -13,20 +13,31 @@ public class AgeConfiguration {
 
   @Min(0)
   private int childrenMax;
+
   @Min(0)
   private int teenMin;
+
   @Min(0)
   private int teenMax;
+
   @Min(0)
   private int adultMin;
+
   @Min(0)
   private int adultMax;
+
   @Min(0)
   private int seniorMin;
 
-  @AssertTrue(message = "Age ranges must be consistent: childrenMax < teenMin <= teenMax < adultMin <= adultMax < seniorMin")
+  @AssertTrue(
+      message =
+          "Age ranges must be consistent: childrenMax < teenMin <= teenMax < adultMin <= adultMax < seniorMin")
   public boolean isValidAgeRanges() {
-    return childrenMax < teenMin && teenMin <= teenMax && teenMax < adultMin && adultMin <= adultMax && adultMax < seniorMin;
+    return childrenMax < teenMin
+        && teenMin <= teenMax
+        && teenMax < adultMin
+        && adultMin <= adultMax
+        && adultMax < seniorMin;
   }
 
   // Getters and setters

@@ -2,11 +2,17 @@ package au.com.sportsbet.movietickets.service;
 
 import au.com.sportsbet.movietickets.config.PricingConfiguration;
 import au.com.sportsbet.movietickets.model.TicketType;
+import au.com.sportsbet.movietickets.service.discount.DiscountPolicy;
+import au.com.sportsbet.movietickets.service.discount.PricingContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,9 +24,15 @@ public class TicketPriceCalculator {
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
 
   private final PricingConfiguration pricingConfig;
+  private final List<DiscountPolicy> discountPolicies;
 
-  public TicketPriceCalculator(PricingConfiguration pricingConfig) {
+  @Autowired
+  public TicketPriceCalculator(
+      PricingConfiguration pricingConfig, List<DiscountPolicy> discountPolicies) {
     this.pricingConfig = pricingConfig;
+    this.discountPolicies =
+        new ArrayList<>(discountPolicies != null ? discountPolicies : List.of());
+    this.discountPolicies.sort(Comparator.comparingInt(DiscountPolicy::order));
   }
 
   /**
@@ -34,21 +46,25 @@ public class TicketPriceCalculator {
    */
   public BigDecimal calculatePriceWithDiscount(
       TicketType ticketType, int quantity, Map<TicketType, Integer> ticketCounts) {
-    BigDecimal basePrice = calculateBasePrice(ticketType);
+    BigDecimal unitPrice = calculateBasePrice(ticketType);
 
-    // Apply group discount for children if threshold is met
-    if (ticketType == TicketType.CHILDREN && qualifiesForChildrenDiscount(ticketCounts)) {
-      log.debug("Applying children group discount for {} tickets", quantity);
-      basePrice = applyDiscount(basePrice, pricingConfig.getChildrenGroupDiscountRate());
+    // Build pricing context once per calculation
+    PricingContext ctx = new PricingContext(ticketCounts, pricingConfig);
+    // Apply discount policies in order, scaling after each policy to maintain money precision
+    for (DiscountPolicy policy : discountPolicies) {
+      if (policy.supports(ticketType)) {
+        BigDecimal afterPolicy = policy.applyUnitPrice(unitPrice, ticketType, ctx);
+        unitPrice = scaleBd(afterPolicy);
+      }
     }
 
-    BigDecimal totalCost = scaleBd(basePrice.multiply(BigDecimal.valueOf(quantity)));
+    BigDecimal totalCost = scaleBd(unitPrice.multiply(BigDecimal.valueOf(quantity)));
     log.debug(
-        "Calculated price for {} {} tickets: ${} (base: ${})",
+        "Calculated price for {} {} tickets: ${} (unit after discounts: ${})",
         quantity,
         ticketType,
         totalCost,
-        basePrice);
+        unitPrice);
 
     return totalCost;
   }
@@ -69,16 +85,5 @@ public class TicketPriceCalculator {
 
   private BigDecimal scaleBd(BigDecimal value) {
     return value.setScale(SCALE, ROUNDING_MODE);
-  }
-
-  private boolean qualifiesForChildrenDiscount(Map<TicketType, Integer> ticketCounts) {
-    int childCount = ticketCounts.getOrDefault(TicketType.CHILDREN, 0);
-    return childCount >= pricingConfig.getChildrenGroupThreshold();
-  }
-
-  private BigDecimal applyDiscount(BigDecimal basePrice, BigDecimal discountRate) {
-    BigDecimal discount = basePrice.multiply(discountRate);
-    basePrice = scaleBd(basePrice.subtract(discount));
-    return basePrice;
   }
 }

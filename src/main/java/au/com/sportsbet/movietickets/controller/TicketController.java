@@ -35,17 +35,31 @@ public class TicketController {
    */
   @Operation(
       summary = "Calculate movie ticket costs",
-      description = "Calculates the total cost of movie tickets for a transaction, including any applicable discounts for children groups."
-  )
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Successfully calculated ticket costs",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = TransactionResponse.class))),
-      @ApiResponse(responseCode = "400", description = "Invalid request parameters",
-          content = @Content(mediaType = "application/json", schema = @Schema(implementation = au.com.sportsbet.movietickets.model.ErrorResponse.class)))
-  })
+      description =
+          "Calculates the total cost of movie tickets for a transaction, including any applicable discounts for children groups.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully calculated ticket costs",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TransactionResponse.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid request parameters",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema =
+                        @Schema(
+                            implementation =
+                                au.com.sportsbet.movietickets.model.ErrorResponse.class)))
+      })
   @PostMapping("/calculate")
   public ResponseEntity<TransactionResponse> calculateTicketCost(
-          @Valid @RequestBody TransactionRequest request) {
+      @Valid @RequestBody TransactionRequest request) {
     log.info("Received ticket calculation request for transaction ID: {}", request.transactionId());
     log.debug("Processing request with {} customers", request.customers().size());
 

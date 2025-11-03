@@ -1,12 +1,12 @@
 package au.com.sportsbet.movietickets.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class PricingConfigurationValidationFailureTest {
 

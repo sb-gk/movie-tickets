@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import au.com.sportsbet.movietickets.config.AgeConfiguration;
 import au.com.sportsbet.movietickets.config.PricingConfiguration;
 import au.com.sportsbet.movietickets.model.*;
+import au.com.sportsbet.movietickets.service.discount.ChildrenGroupDiscountPolicy;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +37,8 @@ class TransactionProcessorTest {
     pricingConfig.setChildrenGroupDiscountRate(BigDecimal.valueOf(0.25));
     pricingConfig.setChildrenGroupThreshold(3);
 
-    TicketPriceCalculator calculator = new TicketPriceCalculator(pricingConfig);
+    TicketPriceCalculator calculator =
+        new TicketPriceCalculator(pricingConfig, List.of(new ChildrenGroupDiscountPolicy()));
     processor = new TransactionProcessor(ageConfig, calculator);
   }
 
