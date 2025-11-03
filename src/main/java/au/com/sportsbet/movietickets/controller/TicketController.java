@@ -20,6 +20,12 @@ public class TicketController {
         this.transactionProcessor = transactionProcessor;
     }
 
+    /**
+     * Calculates the total ticket cost for a movie transaction.
+     *
+     * @param request the transaction request containing transaction ID and customer list
+     * @return ResponseEntity containing the transaction response with ticket summaries and total cost
+     */
     @PostMapping("/calculate")
     public ResponseEntity<TransactionResponse> calculateTicketCost(
             @Valid @RequestBody TransactionRequest request) {

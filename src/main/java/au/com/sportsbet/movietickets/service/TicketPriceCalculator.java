@@ -23,6 +23,14 @@ public class TicketPriceCalculator {
     this.pricingConfig = pricingConfig;
   }
 
+  /**
+   * Calculates the total price for a given ticket type and quantity, applying any applicable discounts.
+   *
+   * @param ticketType the type of ticket (Adult, Senior, Teen, Children)
+   * @param quantity the number of tickets of this type
+   * @param ticketCounts map of all ticket types and their quantities in the transaction
+   * @return the total cost for this ticket type after applying discounts
+   */
   public BigDecimal calculatePriceWithDiscount(
       TicketType ticketType, int quantity, Map<TicketType, Integer> ticketCounts) {
     BigDecimal basePrice = calculateBasePrice(ticketType);

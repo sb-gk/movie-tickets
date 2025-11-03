@@ -21,6 +21,12 @@ public class TransactionProcessor {
     this.priceCalculator = priceCalculator;
   }
 
+  /**
+   * Processes a movie ticket transaction by calculating costs for all customers.
+   *
+   * @param request the transaction request containing transaction ID and customer list
+   * @return TransactionResponse containing ticket summaries and total cost
+   */
   public TransactionResponse processTransaction(TransactionRequest request) {
     validateRequest(request);
 
