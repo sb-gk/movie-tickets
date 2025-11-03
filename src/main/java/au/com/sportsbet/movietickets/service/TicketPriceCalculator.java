@@ -24,7 +24,8 @@ public class TicketPriceCalculator {
   }
 
   /**
-   * Calculates the total price for a given ticket type and quantity, applying any applicable discounts.
+   * Calculates the total price for a given ticket type and quantity, applying any applicable
+   * discounts.
    *
    * @param ticketType the type of ticket (Adult, Senior, Teen, Children)
    * @param quantity the number of tickets of this type
@@ -42,8 +43,12 @@ public class TicketPriceCalculator {
     }
 
     BigDecimal totalCost = scaleBd(basePrice.multiply(BigDecimal.valueOf(quantity)));
-    log.debug("Calculated price for {} {} tickets: ${} (base: ${})",
-        quantity, ticketType, totalCost, basePrice);
+    log.debug(
+        "Calculated price for {} {} tickets: ${} (base: ${})",
+        quantity,
+        ticketType,
+        totalCost,
+        basePrice);
 
     return totalCost;
   }

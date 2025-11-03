@@ -13,31 +13,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/tickets")
 public class TicketController {
 
-    private static final Logger log = LoggerFactory.getLogger(TicketController.class);
-    private final TransactionProcessor transactionProcessor;
+  private static final Logger log = LoggerFactory.getLogger(TicketController.class);
+  private final TransactionProcessor transactionProcessor;
 
-    public TicketController(TransactionProcessor transactionProcessor) {
-        this.transactionProcessor = transactionProcessor;
-    }
+  public TicketController(TransactionProcessor transactionProcessor) {
+    this.transactionProcessor = transactionProcessor;
+  }
 
-    /**
-     * Calculates the total ticket cost for a movie transaction.
-     *
-     * @param request the transaction request containing transaction ID and customer list
-     * @return ResponseEntity containing the transaction response with ticket summaries and total cost
-     */
-    @PostMapping("/calculate")
-    public ResponseEntity<TransactionResponse> calculateTicketCost(
-            @Valid @RequestBody TransactionRequest request) {
-        log.info("Received ticket calculation request for transaction ID: {}", request.transactionId());
-        log.debug("Processing request with {} customers", request.customers().size());
+  /**
+   * Calculates the total ticket cost for a movie transaction.
+   *
+   * @param request the transaction request containing transaction ID and customer list
+   * @return ResponseEntity containing the transaction response with ticket summaries and total cost
+   */
+  @PostMapping("/calculate")
+  public ResponseEntity<TransactionResponse> calculateTicketCost(
+      @Valid @RequestBody TransactionRequest request) {
+    log.info("Received ticket calculation request for transaction ID: {}", request.transactionId());
+    log.debug("Processing request with {} customers", request.customers().size());
 
-        TransactionResponse response = transactionProcessor.processTransaction(request);
+    TransactionResponse response = transactionProcessor.processTransaction(request);
 
-        log.info("Successfully calculated ticket cost for transaction ID: {} - Total: ${}",
-                response.transactionId(), response.totalCost());
-        log.debug("Response contains {} ticket types", response.tickets().size());
+    log.info(
+        "Successfully calculated ticket cost for transaction ID: {} - Total: ${}",
+        response.transactionId(),
+        response.totalCost());
+    log.debug("Response contains {} ticket types", response.tickets().size());
 
-        return ResponseEntity.ok(response);
-    }
+    return ResponseEntity.ok(response);
+  }
 }

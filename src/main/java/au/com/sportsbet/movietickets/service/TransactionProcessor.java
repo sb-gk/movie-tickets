@@ -30,7 +30,10 @@ public class TransactionProcessor {
   public TransactionResponse processTransaction(TransactionRequest request) {
     validateRequest(request);
 
-    log.info("Processing transaction ID: {} with {} customers", request.transactionId(), request.customers().size());
+    log.info(
+        "Processing transaction ID: {} with {} customers",
+        request.transactionId(),
+        request.customers().size());
 
     Map<TicketType, List<Customer>> grouped = groupCustomersByTicketType(request.customers());
     log.debug("Grouped customers by ticket type: {}", grouped.keySet());
@@ -45,8 +48,11 @@ public class TransactionProcessor {
 
     summaries.sort(Comparator.comparing(TicketSummary::ticketType));
 
-    log.info("Transaction ID: {} processed successfully - Total cost: ${}, {} ticket types",
-        request.transactionId(), totalCost, summaries.size());
+    log.info(
+        "Transaction ID: {} processed successfully - Total cost: ${}, {} ticket types",
+        request.transactionId(),
+        totalCost,
+        summaries.size());
 
     return new TransactionResponse(request.transactionId(), summaries, totalCost);
   }
