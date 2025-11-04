@@ -6,14 +6,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 /**
  * Immutable, constructor-bound pricing configuration. Spring Boot will bind properties to this
  * record via constructor.
  */
-@Component
 @ConfigurationProperties(prefix = "ticket.price")
 @Validated
 public record PricingConfiguration(

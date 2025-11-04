@@ -3,14 +3,12 @@ package au.com.sportsbet.movietickets.config;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 /**
  * Immutable, constructor-bound age configuration. Spring Boot binds properties into this record via
  * the canonical constructor.
  */
-@Component
 @ConfigurationProperties(prefix = "ticket.age")
 @Validated
 public record AgeConfiguration(
