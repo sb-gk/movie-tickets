@@ -50,11 +50,11 @@ public class TicketPriceCalculator {
     for (DiscountPolicy policy : discountPolicies) {
       if (policy.supports(ticketType)) {
         BigDecimal afterPolicy = policy.applyUnitPrice(unitPrice, ticketType, ctx);
-        unitPrice = scaleBd(afterPolicy);
+        unitPrice = MoneyUtils.scale(afterPolicy);
       }
     }
 
-    BigDecimal totalCost = scaleBd(unitPrice.multiply(BigDecimal.valueOf(quantity)));
+    BigDecimal totalCost = MoneyUtils.scale(unitPrice.multiply(BigDecimal.valueOf(quantity)));
     log.debug(
         "Calculated price for {} {} tickets: ${} (unit after discounts: ${})",
         quantity,
@@ -72,14 +72,10 @@ public class TicketPriceCalculator {
         // Senior gets discount off adult price
         BigDecimal adultPrice = pricingConfig.adultPrice();
         BigDecimal discount = adultPrice.multiply(pricingConfig.seniorDiscountRate());
-        yield scaleBd(adultPrice.subtract(discount));
+        yield MoneyUtils.scale(adultPrice.subtract(discount));
       }
       case TEEN -> pricingConfig.teenPrice();
       case CHILDREN -> pricingConfig.childrenPrice();
     };
-  }
-
-  private BigDecimal scaleBd(BigDecimal value) {
-    return MoneyUtils.scale(value);
   }
 }
