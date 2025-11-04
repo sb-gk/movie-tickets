@@ -4,7 +4,6 @@ import au.com.sportsbet.movietickets.api.TicketApi;
 import au.com.sportsbet.movietickets.model.TransactionRequest;
 import au.com.sportsbet.movietickets.model.TransactionResponse;
 import au.com.sportsbet.movietickets.service.TransactionProcessor;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,7 @@ public class TicketController implements TicketApi {
    */
   @PostMapping("/calculate")
   @Override
-  public ResponseEntity<TransactionResponse> calculateTicketCost(
-      @Valid @org.springframework.web.bind.annotation.RequestBody TransactionRequest request) {
+  public ResponseEntity<TransactionResponse> calculateTicketCost(TransactionRequest request) {
     log.info("Received ticket calculation request for transaction ID: {}", request.transactionId());
     log.debug("Processing request with {} customers", request.customers().size());
 
