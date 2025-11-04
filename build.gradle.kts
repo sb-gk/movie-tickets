@@ -27,7 +27,7 @@ sourceSets {
         resources {
             srcDir("src/integration-test/resources")
         }
-        compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+        compileClasspath += sourceSets["main"].output + sourceSets["test"].output + configurations["testRuntimeClasspath"]
         runtimeClasspath += output + compileClasspath
     }
 }

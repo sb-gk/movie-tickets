@@ -1,5 +1,6 @@
 package au.com.sportsbet.movietickets.controller;
 
+import static au.com.sportsbet.movietickets.util.TestBuilders.request;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +42,7 @@ class TicketControllerTest {
   @Test
   void testCalculateTicketCost() throws Exception {
     // Given
-    TransactionRequest request = new TransactionRequest(1, List.of(new Customer("John Doe", 30)));
+    TransactionRequest request = request().withTransactionId(1).addAdult(30).build();
 
     TransactionResponse expectedResponse =
         new TransactionResponse(

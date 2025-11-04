@@ -1,5 +1,8 @@
 package au.com.sportsbet.movietickets;
 
+import static au.com.sportsbet.movietickets.util.TestBuilders.assertTicketSummary;
+import static au.com.sportsbet.movietickets.util.TestBuilders.assertTotalCost;
+import static au.com.sportsbet.movietickets.util.TestBuilders.request;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import au.com.sportsbet.movietickets.model.*;
@@ -31,13 +34,12 @@ class MovieTicketsIntegrationTest {
   void fullWorkflow_PDFSample1_ShouldCalculateCorrectly() {
     // Given: First sample from PDF - 1 Senior (70), 2 Children (5, 6)
     TransactionRequest request =
-        new TransactionRequest(
-            1,
-            List.of(
-                new Customer("John Smith", 70), // Senior
-                new Customer("Jane Doe", 5), // Children
-                new Customer("Bob Doe", 6) // Children
-                ));
+        request()
+            .withTransactionId(1)
+            .addSenior(70) // Senior
+            .addChild(5) // Children
+            .addChild(6) // Children
+            .build();
 
     // When: POST request to calculate endpoint
     ResponseEntity<TransactionResponse> response =
@@ -50,40 +52,27 @@ class MovieTicketsIntegrationTest {
     TransactionResponse body = response.getBody();
     assertThat(body.transactionId()).isEqualTo(1);
     assertThat(body.tickets()).hasSize(2);
-    assertThat(body.totalCost()).isEqualByComparingTo(new BigDecimal("27.50"));
+    assertTotalCost(body, new BigDecimal("27.50"));
 
     // Verify Children tickets (no discount for only 2)
-    TicketSummary childrenTicket =
-        body.tickets().stream()
-            .filter(t -> "Children".equals(t.ticketType()))
-            .findFirst()
-            .orElseThrow();
-    assertThat(childrenTicket.quantity()).isEqualTo(2);
-    assertThat(childrenTicket.totalCost()).isEqualByComparingTo(new BigDecimal("10.00"));
+    assertTicketSummary(body, "Children", 2, new BigDecimal("10.00"));
 
     // Verify Senior ticket
-    TicketSummary seniorTicket =
-        body.tickets().stream()
-            .filter(t -> "Senior".equals(t.ticketType()))
-            .findFirst()
-            .orElseThrow();
-    assertThat(seniorTicket.quantity()).isEqualTo(1);
-    assertThat(seniorTicket.totalCost()).isEqualByComparingTo(new BigDecimal("17.50"));
+    assertTicketSummary(body, "Senior", 1, new BigDecimal("17.50"));
   }
 
   @Test
   void fullWorkflow_PDFSample2_WithChildrenDiscount() {
     // Given: Second sample from PDF - 1 Adult, 3 Children (triggers discount), 1 Teen
     TransactionRequest request =
-        new TransactionRequest(
-            2,
-            List.of(
-                new Customer("Billy Kidd", 36), // Adult
-                new Customer("Zoe Daniels", 3), // Children
-                new Customer("George White", 8), // Children
-                new Customer("Tommy Anderson", 9), // Children
-                new Customer("Joe Smith", 17) // Teen
-                ));
+        request()
+            .withTransactionId(2)
+            .addAdult(36) // Adult
+            .addChild(3) // Children
+            .addChild(8) // Children
+            .addChild(9) // Children
+            .addTeen(17) // Teen
+            .build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -96,49 +85,29 @@ class MovieTicketsIntegrationTest {
     TransactionResponse body = response.getBody();
     assertThat(body.transactionId()).isEqualTo(2);
     assertThat(body.tickets()).hasSize(3);
-    assertThat(body.totalCost()).isEqualByComparingTo(new BigDecimal("48.25"));
+    assertTotalCost(body, new BigDecimal("48.25"));
 
     // Verify Adult ticket
-    TicketSummary adultTicket =
-        body.tickets().stream()
-            .filter(t -> "Adult".equals(t.ticketType()))
-            .findFirst()
-            .orElseThrow();
-    assertThat(adultTicket.quantity()).isEqualTo(1);
-    assertThat(adultTicket.totalCost()).isEqualByComparingTo(new BigDecimal("25.00"));
+    assertTicketSummary(body, "Adult", 1, new BigDecimal("25.00"));
 
     // Verify Children tickets (with 25% discount applied)
-    TicketSummary childrenTicket =
-        body.tickets().stream()
-            .filter(t -> "Children".equals(t.ticketType()))
-            .findFirst()
-            .orElseThrow();
-    assertThat(childrenTicket.quantity()).isEqualTo(3);
-    assertThat(childrenTicket.totalCost())
-        .isEqualByComparingTo(new BigDecimal("11.25")); // 3 * 3.75
+    assertTicketSummary(body, "Children", 3, new BigDecimal("11.25")); // 3 * 3.75
 
     // Verify Teen ticket
-    TicketSummary teenTicket =
-        body.tickets().stream()
-            .filter(t -> "Teen".equals(t.ticketType()))
-            .findFirst()
-            .orElseThrow();
-    assertThat(teenTicket.quantity()).isEqualTo(1);
-    assertThat(teenTicket.totalCost()).isEqualByComparingTo(new BigDecimal("12.00"));
+    assertTicketSummary(body, "Teen", 1, new BigDecimal("12.00"));
   }
 
   @Test
   void fullWorkflow_PDFSample3_AllTicketTypes() {
     // Given: Third sample from PDF - 1 of each ticket type
     TransactionRequest request =
-        new TransactionRequest(
-            3,
-            List.of(
-                new Customer("Jesse James", 36), // Adult
-                new Customer("Daniel Anderson", 95), // Senior
-                new Customer("Mary Jones", 15), // Teen
-                new Customer("Michelle Parker", 10) // Children
-                ));
+        request()
+            .withTransactionId(3)
+            .addAdult(36) // Adult
+            .addSenior(95) // Senior
+            .addTeen(15) // Teen
+            .addChild(10) // Children
+            .build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -151,7 +120,7 @@ class MovieTicketsIntegrationTest {
     TransactionResponse body = response.getBody();
     assertThat(body.transactionId()).isEqualTo(3);
     assertThat(body.tickets()).hasSize(4);
-    assertThat(body.totalCost()).isEqualByComparingTo(new BigDecimal("59.50"));
+    assertTotalCost(body, new BigDecimal("59.50"));
 
     // Verify all ticket types present
     List<String> ticketTypes = body.tickets().stream().map(TicketSummary::ticketType).toList();
@@ -162,14 +131,13 @@ class MovieTicketsIntegrationTest {
   void fullWorkflow_AlphabeticalOrdering() {
     // Given: Customers in random order
     TransactionRequest request =
-        new TransactionRequest(
-            4,
-            List.of(
-                new Customer("Teen", 15), // Teen
-                new Customer("Senior", 70), // Senior
-                new Customer("Child", 5), // Children
-                new Customer("Adult", 30) // Adult
-                ));
+        request()
+            .withTransactionId(4)
+            .addTeen(15) // Teen
+            .addSenior(70) // Senior
+            .addChild(5) // Children
+            .addAdult(30) // Adult
+            .build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -187,7 +155,7 @@ class MovieTicketsIntegrationTest {
   @Test
   void validation_EmptyCustomerList_ShouldReturn400() {
     // Given: Request with empty customer list
-    TransactionRequest request = new TransactionRequest(1, List.of());
+    TransactionRequest request = request().withTransactionId(1).build();
 
     // When
     ResponseEntity<ErrorResponse> response =
@@ -203,7 +171,7 @@ class MovieTicketsIntegrationTest {
   @Test
   void validation_NegativeTransactionId_ShouldReturn400() {
     // Given: Request with negative transaction ID
-    TransactionRequest request = new TransactionRequest(-1, List.of(new Customer("John Doe", 30)));
+    TransactionRequest request = request().withTransactionId(-1).addAdult(30).build();
 
     // When
     ResponseEntity<ErrorResponse> response =
@@ -220,7 +188,8 @@ class MovieTicketsIntegrationTest {
   @Test
   void validation_BlankCustomerName_ShouldReturn400() {
     // Given: Request with blank customer name
-    TransactionRequest request = new TransactionRequest(1, List.of(new Customer("", 30)));
+    TransactionRequest request =
+        request().withTransactionId(1).withCustomer(new Customer("", 30)).build();
 
     // When
     ResponseEntity<ErrorResponse> response =
@@ -236,7 +205,8 @@ class MovieTicketsIntegrationTest {
   @Test
   void validation_NegativeAge_ShouldReturn400() {
     // Given: Request with negative age
-    TransactionRequest request = new TransactionRequest(1, List.of(new Customer("John Doe", -5)));
+    TransactionRequest request =
+        request().withTransactionId(1).withCustomer(new Customer("John Doe", -5)).build();
 
     // When
     ResponseEntity<ErrorResponse> response =
@@ -253,7 +223,7 @@ class MovieTicketsIntegrationTest {
   void validation_AgeOver150_ShouldReturn400() {
     // Given: Request with age over maximum
     TransactionRequest request =
-        new TransactionRequest(1, List.of(new Customer("Ancient Person", 200)));
+        request().withTransactionId(1).withCustomer(new Customer("Ancient Person", 200)).build();
 
     // When
     ResponseEntity<ErrorResponse> response =
@@ -270,16 +240,15 @@ class MovieTicketsIntegrationTest {
   void boundaryAges_ShouldMapToCorrectTicketTypes() {
     // Given: Customers at boundary ages
     TransactionRequest request =
-        new TransactionRequest(
-            5,
-            List.of(
-                new Customer("Boundary10", 10), // CHILDREN (max)
-                new Customer("Boundary11", 11), // TEEN (min)
-                new Customer("Boundary17", 17), // TEEN (max)
-                new Customer("Boundary18", 18), // ADULT (min)
-                new Customer("Boundary64", 64), // ADULT (max)
-                new Customer("Boundary65", 65) // SENIOR (min)
-                ));
+        request()
+            .withTransactionId(5)
+            .addChild(10) // CHILDREN (max)
+            .addTeen(11) // TEEN (min)
+            .addTeen(17) // TEEN (max)
+            .addAdult(18) // ADULT (min)
+            .addAdult(64) // ADULT (max)
+            .addSenior(65) // SENIOR (min)
+            .build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -305,11 +274,11 @@ class MovieTicketsIntegrationTest {
   @Test
   void largeTransaction_MultipleCustomersSameType() {
     // Given: Many customers of same type
-    var customers = new java.util.ArrayList<Customer>();
+    var builder = request().withTransactionId(6);
     for (int i = 0; i < 10; i++) {
-      customers.add(new Customer("Adult" + i, 30));
+      builder.addAdult(30);
     }
-    TransactionRequest request = new TransactionRequest(6, customers);
+    TransactionRequest request = builder.build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -330,10 +299,7 @@ class MovieTicketsIntegrationTest {
   void childrenGroupDiscount_Exactly3Children_ShouldApplyDiscount() {
     // Given: Exactly 3 children (threshold)
     TransactionRequest request =
-        new TransactionRequest(
-            7,
-            List.of(
-                new Customer("Child1", 5), new Customer("Child2", 6), new Customer("Child3", 7)));
+        request().withTransactionId(7).addChild(5).addChild(6).addChild(7).build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -352,8 +318,7 @@ class MovieTicketsIntegrationTest {
   @Test
   void childrenGroupDiscount_2Children_ShouldNotApplyDiscount() {
     // Given: Only 2 children (below threshold)
-    TransactionRequest request =
-        new TransactionRequest(8, List.of(new Customer("Child1", 5), new Customer("Child2", 6)));
+    TransactionRequest request = request().withTransactionId(8).addChild(5).addChild(6).build();
 
     // When
     ResponseEntity<TransactionResponse> response =
@@ -372,8 +337,7 @@ class MovieTicketsIntegrationTest {
   @Test
   void seniorPricing_ShouldBe30PercentOffAdult() {
     // Given: One senior customer
-    TransactionRequest request =
-        new TransactionRequest(9, List.of(new Customer("Senior Citizen", 70)));
+    TransactionRequest request = request().withTransactionId(9).addSenior(70).build();
 
     // When
     ResponseEntity<TransactionResponse> response =
