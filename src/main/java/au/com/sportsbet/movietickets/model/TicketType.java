@@ -18,6 +18,7 @@ public enum TicketType {
    * @throws IllegalStateException if age configuration leaves gaps between ranges
    */
   public static TicketType fromAge(int age, AgeConfiguration cfg) {
+    if (!cfg.isValidAgeRanges()) throw new IllegalStateException("Invalid age configuration");
     if (age < 0) throw new IllegalArgumentException("Age must be >= 0");
     if (age <= cfg.childrenMax()) return CHILDREN;
     if (age >= cfg.teenMin() && age <= cfg.teenMax()) return TEEN;
