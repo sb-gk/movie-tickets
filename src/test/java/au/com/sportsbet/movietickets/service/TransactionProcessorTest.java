@@ -1,14 +1,17 @@
 package au.com.sportsbet.movietickets.service;
 
+import static au.com.sportsbet.movietickets.util.TestBuilders.ageConfig;
 import static au.com.sportsbet.movietickets.util.TestBuilders.assertTicketSummary;
 import static au.com.sportsbet.movietickets.util.TestBuilders.assertTicketTypes;
 import static au.com.sportsbet.movietickets.util.TestBuilders.assertTotalCost;
+import static au.com.sportsbet.movietickets.util.TestBuilders.pricingConfig;
 import static au.com.sportsbet.movietickets.util.TestBuilders.request;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import au.com.sportsbet.movietickets.config.AgeConfiguration;
-import au.com.sportsbet.movietickets.config.PricingConfiguration;
-import au.com.sportsbet.movietickets.model.*;
+import au.com.sportsbet.movietickets.model.TicketSummary;
+import au.com.sportsbet.movietickets.model.TransactionRequest;
+import au.com.sportsbet.movietickets.model.TransactionResponse;
 import au.com.sportsbet.movietickets.service.discount.ChildrenGroupDiscountPolicy;
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,33 +21,11 @@ import org.junit.jupiter.api.Test;
 class TransactionProcessorTest {
 
   private TransactionProcessor processor;
-  private AgeConfiguration ageConfig;
-  private PricingConfiguration pricingConfig;
 
   @BeforeEach
   void setUp() {
-    // Setup age configuration (constructor-bound record)
-    ageConfig =
-        new AgeConfiguration(
-            10, // childrenMax
-            11, // teenMin
-            17, // teenMax
-            18, // adultMin
-            64, // adultMax
-            65 // seniorMin
-            );
-
-    // Setup pricing configuration (constructor-bound record)
-    pricingConfig =
-        new PricingConfiguration(
-            BigDecimal.valueOf(25.00), // adultPrice
-            BigDecimal.valueOf(12.00), // teenPrice
-            BigDecimal.valueOf(5.00), // childrenPrice
-            BigDecimal.valueOf(0.30), // seniorDiscountRate
-            BigDecimal.valueOf(0.25), // childrenGroupDiscountRate
-            3 // childrenGroupThreshold
-            );
-
+    var pricingConfig = pricingConfig();
+    var ageConfig = ageConfig();
     TicketPriceCalculator calculator =
         new TicketPriceCalculator(pricingConfig, List.of(new ChildrenGroupDiscountPolicy()));
     processor = new TransactionProcessor(ageConfig, calculator);

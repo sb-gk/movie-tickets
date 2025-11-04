@@ -237,41 +237,6 @@ class MovieTicketsIntegrationTest {
   }
 
   @Test
-  void boundaryAges_ShouldMapToCorrectTicketTypes() {
-    // Given: Customers at boundary ages
-    TransactionRequest request =
-        request()
-            .withTransactionId(5)
-            .addChild(10) // CHILDREN (max)
-            .addTeen(11) // TEEN (min)
-            .addTeen(17) // TEEN (max)
-            .addAdult(18) // ADULT (min)
-            .addAdult(64) // ADULT (max)
-            .addSenior(65) // SENIOR (min)
-            .build();
-
-    // When
-    ResponseEntity<TransactionResponse> response =
-        restTemplate.postForEntity(CALCULATE_ENDPOINT, request, TransactionResponse.class);
-
-    // Then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).isNotNull();
-
-    TransactionResponse body = response.getBody();
-    assertThat(body.tickets()).hasSize(4);
-
-    // Verify quantities by checking each ticket type
-    var ticketMap = new java.util.HashMap<String, Integer>();
-    body.tickets().forEach(ticket -> ticketMap.put(ticket.ticketType(), ticket.quantity()));
-
-    assertThat(ticketMap.get("Children")).isEqualTo(1); // age 10
-    assertThat(ticketMap.get("Teen")).isEqualTo(2); // ages 11, 17
-    assertThat(ticketMap.get("Adult")).isEqualTo(2); // ages 18, 64
-    assertThat(ticketMap.get("Senior")).isEqualTo(1); // age 65
-  }
-
-  @Test
   void largeTransaction_MultipleCustomersSameType() {
     // Given: Many customers of same type
     var builder = request().withTransactionId(6);

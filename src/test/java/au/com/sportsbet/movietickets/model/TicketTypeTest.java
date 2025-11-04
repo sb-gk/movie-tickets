@@ -1,49 +1,42 @@
 package au.com.sportsbet.movietickets.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static au.com.sportsbet.movietickets.util.TestBuilders.ageConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import au.com.sportsbet.movietickets.config.AgeConfiguration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class TicketTypeTest {
 
-  private final AgeConfiguration config = createDefaultConfig();
+  private final AgeConfiguration defaultConfig = ageConfig();
 
-  private AgeConfiguration createDefaultConfig() {
-    return new AgeConfiguration(
-        10, // childrenMax
-        11, // teenMin
-        17, // teenMax
-        18, // adultMin
-        64, // adultMax
-        65 // seniorMin
-        );
+  @ParameterizedTest
+  @CsvSource({
+    "0, CHILDREN",
+    "10, CHILDREN",
+    "11, TEEN",
+    "17, TEEN",
+    "18, ADULT",
+    "64, ADULT",
+    "65, SENIOR",
+    "100, SENIOR"
+  })
+  void testFromAge_MapsCorrectly(int age, TicketType expectedType) {
+    assertEquals(expectedType, TicketType.fromAge(age, defaultConfig));
   }
 
   @Test
-  void testFromAge_Children() {
-    assertEquals(TicketType.CHILDREN, TicketType.fromAge(5, config));
-    assertEquals(TicketType.CHILDREN, TicketType.fromAge(10, config));
-    assertEquals(TicketType.CHILDREN, TicketType.fromAge(0, config));
+  void testFromAge_NegativeAge_ThrowsException() {
+    assertThrows(IllegalArgumentException.class, () -> TicketType.fromAge(-1, defaultConfig));
   }
 
   @Test
-  void testFromAge_Teen() {
-    assertEquals(TicketType.TEEN, TicketType.fromAge(11, config));
-    assertEquals(TicketType.TEEN, TicketType.fromAge(17, config));
-  }
-
-  @Test
-  void testFromAge_Adult() {
-    assertEquals(TicketType.ADULT, TicketType.fromAge(18, config));
-    assertEquals(TicketType.ADULT, TicketType.fromAge(35, config));
-    assertEquals(TicketType.ADULT, TicketType.fromAge(64, config));
-  }
-
-  @Test
-  void testFromAge_Senior() {
-    assertEquals(TicketType.SENIOR, TicketType.fromAge(65, config));
-    assertEquals(TicketType.SENIOR, TicketType.fromAge(80, config));
-    assertEquals(TicketType.SENIOR, TicketType.fromAge(100, config));
+  void testFromAge_InvalidConfig_ThrowsException() {
+    // Invalid config: teen min should be > children max
+    AgeConfiguration invalidConfig = new AgeConfiguration(12, 11, 17, 18, 64, 65);
+    assertThrows(IllegalStateException.class, () -> TicketType.fromAge(15, invalidConfig));
   }
 }

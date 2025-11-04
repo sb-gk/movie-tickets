@@ -1,6 +1,7 @@
 package au.com.sportsbet.movietickets.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static au.com.sportsbet.movietickets.util.TestBuilders.pricingConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import au.com.sportsbet.movietickets.config.PricingConfiguration;
 import au.com.sportsbet.movietickets.model.TicketType;
@@ -14,19 +15,10 @@ import org.junit.jupiter.api.Test;
 class TicketPriceCalculatorTest {
 
   private TicketPriceCalculator calculator;
-  private PricingConfiguration config;
 
   @BeforeEach
   void setUp() {
-    config =
-        new PricingConfiguration(
-            new BigDecimal("25.00"),
-            new BigDecimal("12.00"),
-            new BigDecimal("5.00"),
-            new BigDecimal("0.30"),
-            new BigDecimal("0.25"),
-            3);
-
+    PricingConfiguration config = pricingConfig();
     calculator = new TicketPriceCalculator(config, List.of(new ChildrenGroupDiscountPolicy()));
   }
 

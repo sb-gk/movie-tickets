@@ -1,5 +1,7 @@
 package au.com.sportsbet.movietickets.util;
 
+import au.com.sportsbet.movietickets.config.AgeConfiguration;
+import au.com.sportsbet.movietickets.config.PricingConfiguration;
 import au.com.sportsbet.movietickets.model.Customer;
 import au.com.sportsbet.movietickets.model.TicketSummary;
 import au.com.sportsbet.movietickets.model.TransactionRequest;
@@ -17,6 +19,22 @@ public final class TestBuilders {
 
   private TestBuilders() {
     // Utility class
+  }
+
+  // ===== CONFIGURATION BUILDERS =====
+
+  public static AgeConfiguration ageConfig() {
+    return new AgeConfiguration(10, 11, 17, 18, 64, 65);
+  }
+
+  public static PricingConfiguration pricingConfig() {
+    return new PricingConfiguration(
+        new BigDecimal("25.00"),
+        new BigDecimal("12.00"),
+        new BigDecimal("5.00"),
+        new BigDecimal("0.30"),
+        new BigDecimal("0.25"),
+        3);
   }
 
   // ===== CUSTOMER BUILDER =====
